@@ -1,0 +1,34 @@
+{
+    "name": "toohamster/ws",
+    "description": "a light demo for php5.4",
+    "keywords": ["framework", "ws"],
+    "license": "MIT",
+    "homepage": "http://ws.duixueren.net",
+    "support": {
+        "issues": "https://github.com/toohamster/ws/issues",
+        "source": "https://github.com/toohamster/ws"
+    },
+    "authors": [
+        {
+            "name": "toohamster",
+            "email": "449211678@qq.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.4",
+        "ext-mbstring": "*",
+        "ext-openssl": "*",
+        "psr/log": "^1.0",
+        "monolog/monolog": "~1.11"
+    },
+    "require-dev": {
+        
+    },
+    "autoload": {
+        "classmap": [],
+        "files": [],
+        "psr-4": {"Ws\\": "src/Ws"}
+    },
+    "minimum-stability": "dev"
+}
+
