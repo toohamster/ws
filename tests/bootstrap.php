@@ -32,16 +32,7 @@ function assertEqual($var1,$var2)
 
 function output($var, $tag='info')
 {
-	if (PHP_SAPI === 'cli')
-	{
-		$msg = "[{$tag}]: " . print_r($var,true);
-		
-		fwrite(STDOUT, \Ws\Env::strings($msg) . PHP_EOL);
-	}
-	else
-	{
-		echo "<BR />[{$tag}]: " . print_r($var,true);
-	}
+	\Ws\Env::dump($var, $tag);
 }
 
 interface ITest

@@ -20,7 +20,7 @@ class ContainerTest implements ITest
 	public function run()
 	{
 		$this->configs();
-		// output(Container::dispatch());
+		Container::dispatch();
 	}
 
 }

@@ -1,2 +1,2 @@
-# wk-demo
-a light demo for php5.4
+# ws
+a light framework for php5.4
