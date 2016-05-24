@@ -1,6 +1,6 @@
 {
     "name": "toohamster/ws",
-    "description": "a light demo for php5.4",
+    "description": "a light framework for php5.4",
     "keywords": ["framework", "ws"],
     "license": "MIT",
     "homepage": "http://ws.duixueren.net",
