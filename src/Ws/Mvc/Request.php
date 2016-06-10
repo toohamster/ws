@@ -7,18 +7,23 @@ class Request
 {
     
     public function __construct($pathinfo='')
+    {        
+        $this->pathinfo = self::fmtPathinfo($pathinfo);
+    }
+
+    public function pathinfo()
+    {
+        return $this->pathinfo;
+    }
+
+    public static function fmtPathinfo($pathinfo)
     {
         $pathinfo = trim($pathinfo);
         if ( empty($pathinfo) )
         {
             $pathinfo = '/';
         }
-        $this->pathinfo = $pathinfo;
-    }
-
-    public function pathinfo()
-    {
-        return $this->pathinfo;
+        return $pathinfo;
     }
 
     /**

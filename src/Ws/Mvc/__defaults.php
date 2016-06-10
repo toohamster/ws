@@ -5,12 +5,12 @@ return [
 	'defaults.session_autostart' => true,
 	'defaults.timezone' => 'Asia/Chongqing',
 
-	'app.root' => '/',
+	'app.uribase' => '/',
 	'app.mounts'	=> [
 		'default'	=> [
 			'mount'	=> '/',
 			'src'	=> __DIR__,
 		]
 	],
-	'app.configs'	=> []
+	'app.list'	=> []
 ];

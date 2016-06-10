@@ -17,6 +17,12 @@ class App
         $this->mount  = $mount;
 
         // 加载初始化配置信息
+        $this->isInit = true;
+    }
+
+    public function isInit()
+    {
+    	return $this->isInit;
     }
 
     /**
@@ -28,9 +34,7 @@ class App
 	 */
     public function setPathinfo($pathinfo)
     {	
-    	$pathinfo = trim($pathinfo);
-    	if ( empty($pathinfo) ) $pathinfo = '/';
-    	$this->pathinfo = $pathinfo;
+    	$this->pathinfo = Request::fmtPathinfo($pathinfo);
     	
     	return $this;
     }
@@ -42,6 +46,11 @@ class App
 	 */
     public function run()
     {
+        if ( !$this->isInit )
+        {
+            throw new Exception("{$this->id} not init");
+        }
+
     	Env::dump($this->pathinfo,'pathinfo');
     }
 

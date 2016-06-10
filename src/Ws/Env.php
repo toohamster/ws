@@ -10,11 +10,24 @@ abstract class Env
 		return isset(self::$options[$key]) ? self::$options[$key] : false;
 	}
 
-	public static function checking()
+	public static function detect()
 	{
 		self::$options['cli']	= PHP_SAPI === 'cli';
 		self::$options['win']	= strtolower(substr(php_uname("s"), 0, 3));
 		self::$options['cliwin'] = self::$options['cli'] && self::$options['win'];
+
+		if (self::$options['cli'])
+		{
+			for ($i = 1; $i < $_SERVER['argc']; $i++)
+			{
+				$arg = explode('=', $_SERVER['argv'][$i]);
+				if (count($arg) > 1 || strncmp($arg[0], '-', 1) === 0)
+				{
+					$_GET[ltrim($arg[0], '-')] = isset($arg[1]) ? $arg[1] : true;
+				}
+				$_REQUEST = array_merge($_REQUEST,$_GET);
+			} 
+		}
 	}
 
 	public static function strings($string)
@@ -26,7 +39,7 @@ abstract class Env
 		return false;
 	}
 	   
-    function val($arr, $name, $default = null)
+    public static function val($arr, $name, $default = null)
     {
         return isset($arr[$name]) ? $arr[$name] : $default;
     }
@@ -79,4 +92,4 @@ abstract class Env
 
 }
 
-Env::checking();
+Env::detect();
