@@ -4,12 +4,14 @@
 return [
 	'defaults.session_autostart' => true,
 	'defaults.timezone' => 'Asia/Chongqing',
+	
+	'url.accessor' => 'ws',
+	'url.base' => '/',
 
-	'app.uribase' => '/',
 	'app.mounts'	=> [
 		'default'	=> [
 			'mount'	=> '/',
-			'src'	=> __DIR__,
+			'dir'	=> __DIR__,
 		]
 	],
 	'app.list'	=> []

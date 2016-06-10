@@ -1,14 +1,17 @@
 <?php
 
 return [
+	
+	'url.accessor' => '_ws',
+
 	'app.mounts'	=> [
 		'default'	=> [
 			'mount'	=> '/',
-			'src'	=> __DIR__,
+			'dir'	=> __DIR__,
 		],
 		'blog'	=> [
-			'mount'	=> '/blog/',
-			'src'	=> __DIR__,
+			'mount'	=> '/blog',
+			'dir'	=> __DIR__,
 		]
 	],
 ];

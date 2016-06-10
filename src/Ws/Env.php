@@ -7,11 +7,13 @@ abstract class Env
 
 	public static function is($key)
 	{
-		return isset(self::$options[$key]) ? self::$options[$key] : false;
+		return array_key_exists($key, self::$options) ? self::$options[$key] : false;
 	}
 
 	public static function detect()
 	{
+		self::$options['time']	= time();
+		self::$options['microtime']	= microtime(true);
 		self::$options['cli']	= PHP_SAPI === 'cli';
 		self::$options['win']	= strtolower(substr(php_uname("s"), 0, 3));
 		self::$options['cliwin'] = self::$options['cli'] && self::$options['win'];

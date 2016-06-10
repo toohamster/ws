@@ -1,5 +1,6 @@
 <?php namespace Ws\Mvc;
 
+use Exception;
 use Ws\Env;
 use Ws\Helper\Arrays;
 
@@ -80,9 +81,17 @@ class Container
 	{
 		if (null == $request)
 		{
-			$request = new Request( Request::get_request_pathinfo() );
+			$accessor = trim(self::$config->get('url.accessor', 'accessor'));
+
+			if ( !empty($accessor) && strlen($accessor) < 16 && isset($_GET[$accessor]) )
+			{
+				$request = new Request( $_GET[$accessor] );
+			}
+			else
+			{
+				$request = new Request( Request::get_request_pathinfo() );
+			}
 		}
-		
 		$app = self::parseMointpoints($request);
 		if (!empty($app))
 		{
@@ -110,15 +119,14 @@ class Container
 			// 格式化 $mounts
 			foreach ( $mounts as $appId => $options )
 			{
-				$options['mount'] = trim($options['mount']);
+				$options['mount'] = rtrim($options['mount'], '\/') . '/';
 				$options['len']	 = strlen($options['mount']);
 
 				$mounts[$appId] = $options;
 			}
 
 			$mounts = Arrays::sort_by_col($mounts, 'len' ,SORT_DESC);
-			self::$config->set('app.mounts', $mounts);
-			Env::dump($mounts);
+			self::$config->set('app.mounts', $mounts);			
 			$firstIs = false;
 		}
 
@@ -127,13 +135,14 @@ class Container
 		foreach ( $mounts as $appId => $options )
 		{
 			$idstr = '/^' . str_replace('/', '\/', $options['mount']) . '/i';
+			
 			if (preg_match($idstr,$pathinfo))
 			{
 				$app = self::loadApp($appId, $options);
 				if ( !empty($app) )
 				{
-					$pathinfo = preg_replace($idstr,'',$pathinfo);
-					$app->setPathinfo($pathinfo);
+					$command = preg_replace($idstr,'',$pathinfo);
+					$app->setCommand($command);
 				}
 
 				break;

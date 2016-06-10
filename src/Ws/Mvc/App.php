@@ -1,5 +1,6 @@
 <?php namespace Ws\Mvc;
 
+use Exception;
 use Ws\Env;
 
 class App
@@ -8,7 +9,7 @@ class App
 	private $id;
 	private $dir;
 	private $mount;
-	private $pathinfo;
+	private $command;
 
 	public function __construct($id, $dir, $mount)
     {
@@ -16,7 +17,8 @@ class App
         $this->dir    = $dir;
         $this->mount  = $mount;
 
-        // 加载初始化配置信息
+        //todo 加载初始化配置信息
+        //
         $this->isInit = true;
     }
 
@@ -26,15 +28,16 @@ class App
     }
 
     /**
-	 * 设置pathinfo
+	 * 设置 command
 	 * 
-	 * @param  string $pathinfo
+	 * @param  string $command
 	 * 
 	 * @return \Ws\Mvc\App
 	 */
-    public function setPathinfo($pathinfo)
-    {	
-    	$this->pathinfo = Request::fmtPathinfo($pathinfo);
+    public function setCommand($command)
+    {
+        $command = trim($command);
+    	$this->command = empty($command) ? '/' : '/' . trim($command, '\/');
     	
     	return $this;
     }
@@ -51,7 +54,19 @@ class App
             throw new Exception("{$this->id} not init");
         }
 
-    	Env::dump($this->pathinfo,'pathinfo');
+        $command = Command::parse($this->command);
+
+    	Env::dump($_GET,'command');
+    }
+
+    public function url($command_type, $command='index', $params=null, $anchor=null)
+    {
+        if ( !is_array($params) ) $params = [];
+        $params[Command::QUERYKEY] = $command;
+        $url = rtrim( Request::get_request_baseuri(), '\/') . $this->mount . Command::rewrite($command_type, $params);
+
+        if (!empty($anchor)) $url .= '#' . trim($anchor);
+        return $url;
     }
 
 }

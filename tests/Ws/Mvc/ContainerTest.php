@@ -13,8 +13,8 @@ class ContainerTest implements ITest
 
 	private function configs()
 	{
-		output(Container::$config->get('app.mounts/default/mount','hhhh'));
-		output(Container::$config->get('app.mounts/default/src','hhhh'));
+		// output(Container::$config->get('app.mounts/default/mount','hhhh'));
+		// output(Container::$config->get('app.mounts/default/src','hhhh'));
 	}
 
 	public function run()

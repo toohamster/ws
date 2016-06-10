@@ -6,7 +6,7 @@
 class Request
 {
     
-    public function __construct($pathinfo='')
+    public function __construct($pathinfo)
     {        
         $this->pathinfo = self::fmtPathinfo($pathinfo);
     }
