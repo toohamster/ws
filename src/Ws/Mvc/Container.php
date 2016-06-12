@@ -81,7 +81,7 @@ class Container
 	{
 		if (null == $request)
 		{
-			$accessor = trim(self::$config->get('url.accessor', 'accessor'));
+			$accessor = trim(self::$config->get('command.accessor', '_ws'));
 
 			if ( !empty($accessor) && strlen($accessor) < 16 && isset($_GET[$accessor]) )
 			{

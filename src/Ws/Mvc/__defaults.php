@@ -5,8 +5,7 @@ return [
 	'defaults.session_autostart' => true,
 	'defaults.timezone' => 'Asia/Chongqing',
 	
-	'url.accessor' => 'ws',
-	'url.base' => '/',
+	'command.accessor' => '_ws',
 
 	'app.mounts'	=> [
 		'default'	=> [

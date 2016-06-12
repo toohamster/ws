@@ -2,7 +2,7 @@
 
 return [
 	
-	'url.accessor' => '_ws',
+	'command.accessor' => '_ws',
 
 	'app.mounts'	=> [
 		'default'	=> [
