@@ -71,11 +71,11 @@ class Container
 	}
 
 	/**
-	 * 加载指定应用
+	 * 分发请求
 	 * 
-	 * @param  string $appId 应用标识
+	 * @param  \Ws\Mvc\Request $request
 	 * 
-	 * @return \Ws\Mvc\App
+	 * @return mixed
 	 */
 	public static function dispatch(Request $request=null)
 	{
@@ -119,10 +119,18 @@ class Container
 			// 格式化 $mounts
 			foreach ( $mounts as $appId => $options )
 			{
-				$options['mount'] = rtrim($options['mount'], '\/') . '/';
-				$options['len']	 = strlen($options['mount']);
+				if ( is_dir($options['dir']) )
+				{
+					$options['dir'] = rtrim($options['dir'], '\/');
+					$options['mount'] = rtrim($options['mount'], '\/') . '/';
+					$options['len']	 = strlen($options['mount']);
 
-				$mounts[$appId] = $options;
+					$mounts[$appId] = $options;					
+				}
+				else
+				{
+					unset( $mounts[$appId] );
+				}				
 			}
 
 			$mounts = Arrays::sort_by_col($mounts, 'len' ,SORT_DESC);

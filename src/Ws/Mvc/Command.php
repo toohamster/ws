@@ -19,17 +19,17 @@ class Command
 	/**
 	 * 命令占位符
 	 */
-	const QUERYKEY = 'q';
+	const QUERYKEY = '_cmdId';
 
 	/**
 	 * 缺省命令
 	 */
 	const QUERYDEFAULT = 'index';
 
-	private static $routes = [
+	private static $types = [
 		
 			Command::PAGE	=>[
-				'pattern' => '/{q}.html',
+				'pattern' => '/{_cmdId}.html',
 				'config' => [
 						Command::QUERYKEY => '[a-z][a-z0-9\/]+'
 				],
@@ -39,7 +39,7 @@ class Command
 			],
 					
 			Command::JSON	=>[
-				'pattern' => '/{q}.json',
+				'pattern' => '/{_cmdId}.json',
 				'config' => [
 						Command::QUERYKEY => '[a-z][a-z0-9\/]+'
 				],
@@ -50,29 +50,29 @@ class Command
 		];
 	
 	/**
-	 * 解析命令并返回
+	 * 解析命令标识
 	 * 
 	 * @param  string $command
 	 * @return string
 	 */
-	public static function parse($command)
+	public static function parseId($command)
 	{
 		if ( empty($command) ) $command = '/';
 
-        foreach(self::$routes as $key => $route)
+        foreach(self::$types as $key => $type)
         {
             # 将路由的配置参数添加到 正则规则中.
-            foreach($route['config'] as $ck => $cval)
+            foreach($type['config'] as $ck => $cval)
             {
-                $route['pattern'] = str_replace('{'.$ck.'}', '('.$cval.')', $route['pattern']);
+                $type['pattern'] = str_replace('{'.$ck.'}', '('.$cval.')', $type['pattern']);
             }
 
-            if (preg_match('#^'.$route['pattern'].'/?$#i', $command, $match_result))
+            if (preg_match('#^'.$type['pattern'].'/?$#i', $command, $match_result))
             {
                 # 处理默认项
-                if ( !empty($route['default']) )
+                if ( !empty($type['default']) )
                 {
-                    foreach ($route['default'] as $ck => $cval)
+                    foreach ($type['default'] as $ck => $cval)
                     {
                         $_GET[$ck] = $_REQUEST[$ck] = $cval;
                     }
@@ -80,7 +80,7 @@ class Command
 
                 # offset 为0 是 原字符串
                 $offset = 1;
-                foreach($route['config'] as $ck => $cval)
+                foreach($type['config'] as $ck => $cval)
                 {
                     if(isset($match_result[$offset]))
                     {
@@ -99,24 +99,28 @@ class Command
 	}
 
 	/**
-     * 生成 Rewrite 模式的命令
-     *
-     * @param string $route_key
-     * @param array $params
-     *
-     * @return string
-     */
-    static function rewrite($route_key, $params)
+	 * 生成命令
+	 * 
+	 * @param  string $commandId
+	 * @param  array  $params
+	 * @param  const $typeid
+	 * 
+	 * @return string
+	 */
+    public static function build($commandId, $params=[], $typeid=Command::PAGE)
     {
-        $route = empty(self::$routes[$route_key]) ? self::$routes[Command::PAGE] : self::$routes[$route_key];
+    	if ( !is_array($params) ) $params = [];
+        $params[Command::QUERYKEY] = $commandId;
+
+        $type = empty(self::$types[$typeid]) ? self::$types[Command::PAGE] : self::$types[$typeid];
         
         # 找出要参数化的变量(将参数数组同default合并起来)
         $kv = [];
-        foreach($route['config'] as $ck => $cval)
+        foreach($type['config'] as $ck => $cval)
         {
             $kv[$ck] = $cval;
         }
-        foreach($route['default'] as $ck => $cval)
+        foreach($type['default'] as $ck => $cval)
         {
             $kv[$ck] = $cval;
         }
@@ -138,10 +142,10 @@ class Command
                 $cval = $params[$ck];
                 unset($params[$ck]);
             }
-            $route['pattern'] = str_replace('{'.$ck.'}', $cval, $route['pattern']);
+            $type['pattern'] = str_replace('{'.$ck.'}', $cval, $type['pattern']);
         }
 
-        $rst = ltrim($route['pattern'], '\/');
+        $rst = ltrim($type['pattern'], '\/');
 
         if (!empty($params))
         {
