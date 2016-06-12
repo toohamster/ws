@@ -32,7 +32,7 @@ abstract class Env
 		}
 	}
 
-	public static function strings($string)
+	public static function cliString($string)
 	{
 		if (is_string($string) && self::$options['cliwin'])
 		{
@@ -46,24 +46,6 @@ abstract class Env
         return isset($arr[$name]) ? $arr[$name] : $default;
     }
 
-	/**
-	 * 对字符串或数组进行格式化，返回格式化后的数组
-	 *
-	 * @param array|string $input 要格式化的字符串或数组
-	 * @param string $delimiter 按照什么字符进行分割
-	 *
-	 * @return array 格式化结果
-	 */
-	public static function arr($input, $delimiter = ',')
-	{
-	    if (!is_array($input))
-	    {
-	        $input = explode($delimiter, $input);
-	    }
-	    $input = array_map('trim', $input);
-	    return array_filter($input, 'strlen');
-	}
-
 	public static function dump($vars, $label = '', $return = false)
 	{
 		if ( self::$options['cli'] )
@@ -73,7 +55,7 @@ abstract class Env
 			{
 				$content = "[$label]: " . $content;
 			}
-			$content = self::strings($content);
+			$content = self::cliString($content);
 
 		    if ($return) { return $content; }
 		    fwrite(STDOUT, $content . PHP_EOL);

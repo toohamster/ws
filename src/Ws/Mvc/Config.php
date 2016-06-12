@@ -108,7 +108,7 @@ class Config
 
     static private function _get_nested_keys($key)
     {
-        $keys = Env::arr($key, '/');
+        $keys = \Ws\Helper\Arrays::normalize($key, '/');
         $last = array_pop($keys);
         return [$keys, $last];
     }
