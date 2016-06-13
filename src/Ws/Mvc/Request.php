@@ -1,10 +1,18 @@
 <?php namespace Ws\Mvc;
 
 /**
- * 封装一个请求
+ * HTTP 请求类
  */
 class Request
 {
+
+    const ANY       = "ANY";
+    const OPTIONS   = "OPTIONS";
+    const HEAD      = "HEAD";
+    const GET       = "GET";
+    const POST      = "POST";
+    const PUT       = "PUT";
+    const DELETE    = "DELETE";
     
     public function __construct($pathinfo)
     {        

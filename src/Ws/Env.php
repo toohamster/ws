@@ -32,6 +32,29 @@ abstract class Env
 		}
 	}
 
+	/**
+	 * 返回类加载器对象
+	 * 
+	 * @return \Composer\Autoload\ClassLoader
+	 */
+	public static function classLoader()
+	{
+		static $loader = null;
+		if ( is_null($loader) )
+		{
+			$loader = new \Composer\Autoload\ClassLoader();
+			$loader->register();
+		}
+
+		return $loader;
+	}
+
+	/**
+	 * 返回终端字符串
+	 * 
+	 * @param  string $string
+	 * @return string
+	 */
 	public static function cliString($string)
 	{
 		if (is_string($string) && self::$options['cliwin'])
@@ -46,6 +69,15 @@ abstract class Env
         return isset($arr[$name]) ? $arr[$name] : $default;
     }
 
+    /**
+	 * 输出一个变量的内容
+	 *
+	 * @param mixed $vars 要输出的变量
+	 * @param string $label 输出变量时显示的标签
+	 * @param boolean $return 是否返回输出内容
+	 *
+	 * @return string
+	 */
 	public static function dump($vars, $label = '', $return = false)
 	{
 		if ( self::$options['cli'] )
@@ -72,6 +104,18 @@ abstract class Env
 		    if ($return) { return $content; }
 		    echo $content;
 		}
+	}
+
+	/**
+	 * 判断变量是否
+	 * 
+	 * @param  \Closure  $closure 匿名函数
+	 * 
+	 * @return boolean
+	 */
+	public static function isClosure($closure)
+	{
+		return !empty($closure) && ($closure instanceof \Closure);
 	}
 
 }

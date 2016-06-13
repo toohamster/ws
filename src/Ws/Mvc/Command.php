@@ -48,6 +48,44 @@ class Command
 				]
 			],
 		];
+
+    /**
+     * 构造函数
+     *
+     * @param string $id
+     * @param string $httpMethod
+     * @param array|callback $closure
+     */
+    public function __construct($id, $httpMethod, $closure, $closureType)
+    {
+        $this->id = $id;
+        $this->httpMethod = $httpMethod;
+        $this->closure = $closure;
+        $this->closureType = $closureType;
+    }
+
+    /**
+     * 执行命令并返回结果
+     */
+    public function execute(App $app)
+    {        
+        $result = false;
+        switch ( $this->closureType )
+        {
+            case 'closure':
+            case 'function':
+                $result = call_user_func_array($this->closure, [$app]);
+                break;
+            case 'method':
+                $class = $this->closure[0];
+                $obj = new $class($app);
+
+                $method = $this->closure[1];                
+                $result = call_user_func_array([$obj, $method],[]);
+                break;
+        }
+        return $result;
+    }
 	
 	/**
 	 * 解析命令标识
@@ -95,6 +133,8 @@ class Command
 
         if ( empty($_GET[Command::QUERYKEY]) ) $_GET[Command::QUERYKEY] = Command::QUERYDEFAULT;
 
+        $_GET[Command::QUERYKEY] = strtolower($_GET[Command::QUERYKEY]);
+
         return $_GET[Command::QUERYKEY];
 	}
 
@@ -109,6 +149,8 @@ class Command
 	 */
     public static function build($commandId, $params=[], $typeid=Command::PAGE)
     {
+        $commandId = strtolower(trim($commandId));
+        
     	if ( !is_array($params) ) $params = [];
         $params[Command::QUERYKEY] = $commandId;
 
