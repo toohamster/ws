@@ -81,6 +81,7 @@ class App
         if ( !empty($cmdObject) && ($cmdObject instanceof Command) )
         {
             $result = $cmdObject->execute($this);
+            return $result;
         }
         else
         {
