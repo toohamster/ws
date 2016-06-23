@@ -127,8 +127,8 @@ class Command
         $after = Env::getClosure($after);
 
         $this->filter = [
-            'before'    => !empty($before) ? $before['closure'] : null,
-            'after'    => !empty($after) ? $after['closure'] : null,
+            'before'    => empty($before) ? null : $before['closure'],
+            'after'    => empty($after) ? null : $after['closure'],
         ];
 
         return $this;
@@ -178,9 +178,9 @@ class Command
     /**
      * 定义命令组对象并返回
      * 
-     * @param  string   $id 名字
+     * @param  array   $list 指令集数组
      * 
-     * @return \Ws\Mvc\Command
+     * @return \Ws\Mvc\CommandGroup
      */
     public static function group(array $list)
     {
