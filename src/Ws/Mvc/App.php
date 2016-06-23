@@ -7,18 +7,18 @@ class App
 {
 
     /**
-     * 应用设置对象
+     * App 配置对象
      * 
      * @var \Ws\Mvc\Config
      */
     private $config;
 
     /**
-     * 当前执行的 command 指令
+     * 当前执行的 pathing
      * 
      * @var string
      */
-    private $command;
+    private $pathing = '/';
 
 	public function __construct($id, $dir, $mount)
     {
@@ -48,9 +48,9 @@ class App
     }
 
     /**
-     * App 标识
+     * App 配置对象
      * 
-     * @return string
+     * @return \Ws\Mvc\Config
      */
     public function config()
     {
@@ -58,14 +58,14 @@ class App
     }
 
     /**
-	 * 设置 command
+	 * 设置 pathing
 	 * 
-	 * @param  string $command
+	 * @param  string $pathing
 	 */
-    public function setCommand($command)
+    public function setPathing($pathing)
     {
-        $command = trim($command);
-    	$this->command = empty($command) ? '/' : '/' . trim($command, '\/');
+        $pathing = trim($pathing);
+    	$this->pathing = empty($pathing) ? '/' : '/' . trim($pathing, '\/');
     }
 
     /**
@@ -75,9 +75,9 @@ class App
 	 */
     public function run()
     {
-        $commandId = Command::parseId($this->command);
+        $commandId = Command::parseId($this->pathing);
 
-        $cmdObject = $this->config->get('app.commands/' . $commandId);
+        $cmdObject = Command::find($commandId);
         if ( !empty($cmdObject) && ($cmdObject instanceof Command) )
         {
             $result = $cmdObject->execute($this);
@@ -90,58 +90,23 @@ class App
     }
 
     /**
-     * 绑定命令
+     * 定义命令
      * 
      * @param  string $commandId    命令标识
-     * @param  array  $config       执行
+     * @param  string $eventId 事件标识
+     * @param  mixed  $closure 处理函数
      * 
-     * @return boolean
+     * @return \Ws\Mvc\Command
      */
-    public function bind($commandId, array $config)
+    public function bind($commandId, $eventId, $closure)
     {
-        if (empty($commandId) || empty($config) || empty($config[0])) return false;
+        if (empty($commandId)) return null;
 
-        $commandId = strtolower(trim($commandId));
-        
-        $closure = $config[0];
-        $httpMethod = Env::val($config, 1 , Request::ANY);
-
-        $cmdObject = null;
-
-        if ( Env::isClosure($closure) )
-        {
-            $cmdObject = new Command($commandId, $httpMethod, $closure, 'closure');
-        }
-        else if (is_callable($closure))
-        {
-            $cmdObject = new Command($commandId, $httpMethod, $closure, 'callback');
-        }
-        else if (is_string($closure))
-        {
-            $closure = \Ws\Helper\Arrays::normalize($closure, '@');
-            // class, method
-            $class = array_shift($closure);
-
-            if (!class_exists($class)) return false;
-
-            $method = array_shift($closure);
-            if ( empty($method) ) $method = 'execute';
-
-            if ( is_callable([$class, $method]) )
-            {
-                $cmdObject = new Command($commandId, $httpMethod, [$class, $method], 'method');
-            }            
-        }
-
-        if ( empty($cmdObject) ) return false;
-      
-        $this->config->set('app.commands/' . $commandId, $cmdObject);
-
-        return true;
+        return Command::id($commandId)->bind($eventId, $closure)->bindTo($this);
     }
 
     /**
-     * 生成 页面 模式的命令串
+     * 生成 页面 模式的访问路径
      * 
      * @param  string $commandId 命令标识
      * @param  array  $params    参数
@@ -149,7 +114,7 @@ class App
      * 
      * @return string
      */
-    public function pageCommand($commandId, $params=[], $anchor=null)
+    public function pagePathing($commandId, $params=[], $anchor=null)
     {
         $url = rtrim(Request::get_request_baseuri(), '\/') . $this->config->get('app.mount');
         $url .= Command::build($commandId, $params, Command::PAGE);
@@ -159,14 +124,14 @@ class App
     }
 
     /**
-     * 生成 数据接口 模式的命令串
+     * 生成 接口 模式的访问路径
      * 
      * @param  string $commandId 命令标识
      * @param  array  $params    参数
      * 
      * @return string
      */
-    public function jsonCommand($commandId, $params=[])
+    public function jsonPathing($commandId, $params=[])
     {
         $url = rtrim( Request::get_request_baseuri(), '\/') . $this->config->get('app.mount');
         $url .= Command::build($commandId, $params, Command::JSON);

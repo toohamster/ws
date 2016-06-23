@@ -149,8 +149,8 @@ class Container
 				$app = self::loadApp($appId, $options);
 				if ( !empty($app) )
 				{
-					$command = preg_replace($idstr,'',$pathinfo);
-					$app->setCommand($command);
+					$pathing = preg_replace($idstr,'',$pathinfo);
+					$app->setPathing($pathing);
 				}
 
 				break;

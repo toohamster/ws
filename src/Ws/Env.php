@@ -118,6 +118,54 @@ abstract class Env
 		return !empty($closure) && ($closure instanceof \Closure);
 	}
 
+	/**
+	 * 获取回调函数对象
+	 * 
+	 * @param  mixed $closure 回调函数对象
+	 * 
+	 * @return array
+	 */
+	public static function getClosure($closure)
+	{
+		if (empty($closure)) return null;
+		
+		$closureType = null;
+
+		if ( self::isClosure($closure) )
+        {
+            $closureType = 'closure';
+        }
+        else if (is_callable($closure))
+        {
+            $closureType = 'callable';
+        }
+        else if (is_string($closure))
+        {
+            $closure = \Ws\Helper\Arrays::normalize($closure, '@');
+            // class, method
+            $class = array_shift($closure);
+
+            if (class_exists($class))
+            {
+                $method = array_shift($closure);
+                if ( empty($method) ) $method = 'execute';
+
+                if ( is_callable([$class, $method]) )
+                {
+                    $closureType = 'method';
+                    $closure = [$class, $method];
+                }
+            }                       
+        }
+
+        if ( empty($closureType) )
+        {
+        	return null;
+        }
+
+        return ['type'=> $closureType, 'closure'=> $closure];
+	}
+
 }
 
 Env::detect();

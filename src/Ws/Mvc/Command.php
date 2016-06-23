@@ -53,15 +53,19 @@ class Command
      * 构造函数
      *
      * @param string $id
-     * @param string $httpMethod
-     * @param array|callback $closure
      */
-    public function __construct($id, $httpMethod, $closure, $closureType)
+    public function __construct($id)
     {
         $this->id = $id;
-        $this->httpMethod = $httpMethod;
-        $this->closure = $closure;
-        $this->closureType = $closureType;
+        $this->eventId = false;
+        $this->closure = null;        
+        $this->closureType = null;
+        $this->filter = [];
+    }
+
+    public function getId()
+    {
+        return $this->id;
     }
 
     /**
@@ -73,7 +77,7 @@ class Command
         switch ( $this->closureType )
         {
             case 'closure':
-            case 'function':
+            case 'callable':
                 $result = call_user_func_array($this->closure, [$app]);
                 break;
             case 'method':
@@ -85,6 +89,110 @@ class Command
                 break;
         }
         return $result;
+    }
+
+    /**
+     * 为指令绑定处理函数
+     * 
+     * @param  string $eventId 事件标识
+     * @param  mixed  $closure 处理函数
+     *  
+     * @return \Ws\Mvc\Command
+     */
+    public function bind($eventId, $closure)
+    {
+        $this->eventId = $eventId;
+
+        $closureInfo = Env::getClosure($closure);
+        if ( !empty($closureInfo) )
+        {
+            $this->closureType = $closureInfo['type'];
+            $this->closure = $closureInfo['closure'];
+        }
+
+        return $this;
+    }
+
+    /**
+     * 绑定 过滤器
+     * 
+     * @param  closure    $before
+     * @param  closure    $after
+     * 
+     * @return \Ws\Mvc\Command
+     */
+    public function filter($before=null, $after=null)
+    {
+        $before = Env::getClosure($before);
+        $after = Env::getClosure($after);
+
+        $this->filter = [
+            'before'    => !empty($before) ? $before['closure'] : null,
+            'after'    => !empty($after) ? $after['closure'] : null,
+        ];
+
+        return $this;
+    }
+
+    /**
+     * 将命令绑定到 应用
+     * 
+     * @param  App    $app
+     *
+     * @return \Ws\Mvc\Command
+     */
+    public function bindTo(App $app)
+    {
+        $app->config()->set('app.commands/' . $this->id, $this);
+        return $this;
+    }
+
+    /**
+     * 定义命令对象并返回
+     * 
+     * @param  string   $id 名字
+     * 
+     * @return \Ws\Mvc\Command
+     */
+    public static function id($id)
+    {
+        $id = strtolower(trim($id));
+        if ( empty($id) ) return null;
+        return new self($id);
+    }
+
+    /**
+     * 定义命令对象并返回
+     * 
+     * @param  string   $id 名字
+     * 
+     * @return \Ws\Mvc\Command
+     */
+    public static function find($id, App $app)
+    {
+        $id = strtolower(trim($id));
+        if ( empty($id) ) return null;
+        return $app->config()->get('app.commands/' . $id);
+    }
+
+    /**
+     * 定义命令组对象并返回
+     * 
+     * @param  string   $id 名字
+     * 
+     * @return \Ws\Mvc\Command
+     */
+    public static function group(array $list)
+    {
+        $ss = [];
+        foreach ($list as $item)
+        {
+            if ( count($item) == 3)
+            {
+                $ss[] = Command::id($item[0])->bind($item[1], $item[2]);
+            }
+        }
+        return new CommandGroup($ss);
     }
 	
 	/**
@@ -195,6 +303,66 @@ class Command
         }
 
         return $rst;
+    }
+
+}
+
+/**
+ * 命令组
+ */
+class CommandGroup
+{
+
+    /**
+     * 构造函数
+     * 
+     * @param array $list
+     */
+    public function __construct(array $list)
+    {
+        $this->list = [];
+        foreach ( $list as $cmd )
+        {
+            if ($cmd instanceof Command)
+            {
+                $this->list[] = $cmd;
+            }
+        }
+    }
+
+    /**
+     * 绑定到 应用对象
+     * 
+     * @param  App    $app
+     * 
+     * @return \Ws\Mvc\CommandGroup
+     */
+    public function bindTo(App $app)
+    {
+        foreach ($this->list as $cmd)
+        {
+            $cmd->bindTo($app);
+        }
+
+        return $this;
+    }
+
+    /**
+     * 绑定 过滤器
+     * 
+     * @param  closure    $before
+     * @param  closure    $after
+     * 
+     * @return \Ws\Mvc\CommandGroup
+     */
+    public function filter($before, $after=null)
+    {
+        foreach ($this->list as $cmd)
+        {
+            $cmd->filter($before, $after);
+        }
+
+        return $this;
     }
 
 }
