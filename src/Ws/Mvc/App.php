@@ -77,7 +77,7 @@ class App
     {
         $commandId = Command::parseId($this->pathing);
 
-        $cmdObject = Command::find($commandId);
+        $cmdObject = Command::find($commandId, $this);
         if ( !empty($cmdObject) && ($cmdObject instanceof Command) )
         {
             $result = $cmdObject->execute($this);
