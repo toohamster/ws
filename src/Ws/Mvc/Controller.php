@@ -50,7 +50,8 @@ abstract class Controller
 	 * 渲染视图模版
 	 * 
 	 * @param  string $viewname
-	 * @return Response
+	 * 
+	 * @return string
 	 */
 	protected function view($viewname)
 	{
@@ -60,33 +61,34 @@ abstract class Controller
 	}
     
 	/**
-	 * 成功信息
-	 * 
-	 * @param string $msg
+	 * JSON 成功信息
+	 *
 	 * @param array $data
+	 * @param string $msg
 	 * 
 	 * @return string
 	 */
-	protected function jsonSuccess($msg = '操作成功', $data = [])
+	protected function jsonSuccess($data = [], $msg = '操作成功')
 	{
 		$d = ['errcode' => 0, 'msg' => $msg, 'data' => $data];
 		return json_encode($d);
 	}
 
 	/**
-	 * 失败信息
-	 * @param type $msg
+	 * JSON 错误信息
+	 * 
+	 * @param  string  $data
+	 * @param  integer $errcode
+	 * @param  string  $msg
+	 * 
 	 * @return string
 	 */
-	protected function jsonFailure($msg = '操作失败', $errcode = -1, $data = null)
+	protected function jsonError($data = '', $errcode = -1, $msg = '操作失败')
 	{
 		if ( intval($errcode) == 0 ) $errcode = -1;
 		
 		$d = ['errcode' => $errcode, 'msg' => $msg];
-		if ( !empty($data) )
-		{
-			$d['data'] = $data;
-		}
+		if ( !empty($data) ) $d['data'] = $data;
 
 		return json_encode($d);
 	}

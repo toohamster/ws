@@ -1,7 +1,7 @@
 <?php
 use Ws\Env;
 use Ws\Mvc\Request;
-use Ws\Mvc\Command;
+use Ws\Mvc\Cmd;
 
 $app = $this->me();
 /*@var $app \Ws\Mvc\App */
@@ -12,14 +12,22 @@ $dir = $app->config()->get('app.dir');
 Env::classLoader()->addPsr4('Blog\\', $dir);
 
 // 绑定命令
-$app->bind('hello', Request::GET, function($app){
+Cmd::id('hello')->bind(Request::GET, function($app){
 	output('Hello World!', 'text');
 	output($app->pagePathing('who.are.you',['name'=>'a test']), 'url');
 	output($app->jsonPathing('who.love.you',['tag'=>'php']), 'url');
 });
 
-$app->bind('index', Request::GET, 'Blog\Controller\Index@index');
+Cmd::id('index')->bind(Request::GET, 'Blog\Controller\Index@index')->bindTo($app);
 
-// Command::group([]);
+Cmd::group([
+		[
+			'id'	=> 'hello',
+			'event'	=> Request::GET,
+			'closure'	=> function($a){
+				Env::dump($a);
+			}
+		]
+	])->bindTo($app);
 
 // Env::dump($app);

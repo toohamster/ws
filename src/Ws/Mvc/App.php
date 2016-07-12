@@ -26,7 +26,7 @@ class App
                 'app.id'    => $id,
                 'app.dir'    => $dir,
                 'app.mount'    => $mount,
-                'app.commands'    => [],
+                'app.cmds'    => [],
             ]);
 
         $fileInit = $dir . '/__init.php';
@@ -75,49 +75,33 @@ class App
 	 */
     public function run()
     {
-        $commandId = Command::parseId($this->pathing);
+        $cmdId = Cmd::parseId($this->pathing);
 
-        $cmdObject = Command::find($commandId, $this);
-        if ( !empty($cmdObject) && ($cmdObject instanceof Command) )
+        $cmd = Cmd::find($cmdId, $this);
+        if ( !empty($cmd) && ($cmd instanceof Cmd) )
         {
-            $result = $cmdObject->execute($this);
+            $result = $cmd->execute($this);
             return $result;
         }
         else
         {
-            throw new \Exception("unbind command: " . $commandId);
+            throw new Exception("unbind cmd: " . $cmdId);
         }
-    }
-
-    /**
-     * 定义命令
-     * 
-     * @param  string $commandId    命令标识
-     * @param  string $eventId 事件标识
-     * @param  mixed  $closure 处理函数
-     * 
-     * @return \Ws\Mvc\Command
-     */
-    public function bind($commandId, $eventId, $closure)
-    {
-        if (empty($commandId)) return null;
-
-        return Command::id($commandId)->bind($eventId, $closure)->bindTo($this);
     }
 
     /**
      * 生成 页面 模式的访问路径
      * 
-     * @param  string $commandId 命令标识
+     * @param  string $cmdId 命令标识
      * @param  array  $params    参数
      * @param  string $anchor    锚点
      * 
      * @return string
      */
-    public function pagePathing($commandId, $params=[], $anchor=null)
+    public function pagePathing($cmdId, $params=[], $anchor=null)
     {
         $url = rtrim(Request::get_request_baseuri(), '\/') . $this->config->get('app.mount');
-        $url .= Command::build($commandId, $params, Command::PAGE);
+        $url .= Cmd::build($cmdId, $params, Cmd::PAGE);
 
         if (!empty($anchor)) $url .= '#' . trim($anchor);
         return $url;
@@ -126,15 +110,15 @@ class App
     /**
      * 生成 接口 模式的访问路径
      * 
-     * @param  string $commandId 命令标识
-     * @param  array  $params    参数
+     * @param  string $cmdId    命令标识
+     * @param  array  $params   参数
      * 
      * @return string
      */
-    public function jsonPathing($commandId, $params=[])
+    public function jsonPathing($cmdId, $params=[])
     {
         $url = rtrim( Request::get_request_baseuri(), '\/') . $this->config->get('app.mount');
-        $url .= Command::build($commandId, $params, Command::JSON);
+        $url .= Cmd::build($cmdId, $params, Cmd::JSON);
 
         return $url;
     }

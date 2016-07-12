@@ -3,7 +3,7 @@
 use Exception;
 use Ws\Env;
 
-class Command
+class Cmd
 {
 
 	/**
@@ -28,23 +28,23 @@ class Command
 
 	private static $types = [
 		
-			Command::PAGE	=>[
+			Cmd::PAGE	=>[
 				'pattern' => '/{_cmdId}.html',
 				'config' => [
-						Command::QUERYKEY => '[a-z][a-z0-9\/]+'
+						Cmd::QUERYKEY => '[a-z][a-z0-9\/]+'
 				],
 				'default' => [
-						Command::QUERYKEY => Command::QUERYDEFAULT 
+						Cmd::QUERYKEY => Cmd::QUERYDEFAULT 
 				]
 			],
 					
-			Command::JSON	=>[
+			Cmd::JSON	=>[
 				'pattern' => '/{_cmdId}.json',
 				'config' => [
-						Command::QUERYKEY => '[a-z][a-z0-9\/]+'
+						Cmd::QUERYKEY => '[a-z][a-z0-9\/]+'
 				],
 				'default' => [
-						Command::QUERYKEY => Command::QUERYDEFAULT  
+						Cmd::QUERYKEY => Cmd::QUERYDEFAULT  
 				]
 			],
 		];
@@ -54,10 +54,10 @@ class Command
      *
      * @param string $id
      */
-    public function __construct($id)
+    private function __construct($id)
     {
         $this->id = $id;
-        $this->eventId = false;
+        $this->event = false;
         $this->closure = null;        
         $this->closureType = null;
         $this->filter = [];
@@ -94,14 +94,14 @@ class Command
     /**
      * 为指令绑定处理函数
      * 
-     * @param  string $eventId 事件标识
+     * @param  string $event 事件
      * @param  mixed  $closure 处理函数
      *  
-     * @return \Ws\Mvc\Command
+     * @return \Ws\Mvc\Cmd
      */
-    public function bind($eventId, $closure)
+    public function bind($event, $closure)
     {
-        $this->eventId = $eventId;
+        $this->event = $event;
 
         $closureInfo = Env::getClosure($closure);
         if ( !empty($closureInfo) )
@@ -119,7 +119,7 @@ class Command
      * @param  closure    $before
      * @param  closure    $after
      * 
-     * @return \Ws\Mvc\Command
+     * @return \Ws\Mvc\Cmd
      */
     public function filter($before=null, $after=null)
     {
@@ -128,7 +128,7 @@ class Command
 
         $this->filter = [
             'before'    => empty($before) ? null : $before['closure'],
-            'after'    => empty($after) ? null : $after['closure'],
+            'after'    => empty($after) ? null : $after['closure']
         ];
 
         return $this;
@@ -139,11 +139,11 @@ class Command
      * 
      * @param  App    $app
      *
-     * @return \Ws\Mvc\Command
+     * @return \Ws\Mvc\Cmd
      */
     public function bindTo(App $app)
     {
-        $app->config()->set('app.commands/' . $this->id, $this);
+        $app->config()->set('app.cmds/' . $this->id, $this);
         return $this;
     }
 
@@ -152,13 +152,13 @@ class Command
      * 
      * @param  string   $id 名字
      * 
-     * @return \Ws\Mvc\Command
+     * @return \Ws\Mvc\Cmd
      */
     public static function id($id)
     {
-        $id = strtolower(trim($id));
+        $id = trim($id);
         if ( empty($id) ) return null;
-        return new self($id);
+        return new self(strtolower($id));
     }
 
     /**
@@ -166,13 +166,13 @@ class Command
      * 
      * @param  string   $id 名字
      * 
-     * @return \Ws\Mvc\Command
+     * @return \Ws\Mvc\Cmd
      */
     public static function find($id, App $app)
     {
-        $id = strtolower(trim($id));
+        $id = trim($id);
         if ( empty($id) ) return null;
-        return $app->config()->get('app.commands/' . $id);
+        return $app->config()->get('app.cmds/' . strtolower($id));
     }
 
     /**
@@ -180,30 +180,30 @@ class Command
      * 
      * @param  array   $list 指令集数组
      * 
-     * @return \Ws\Mvc\CommandGroup
+     * @return \Ws\Mvc\CmdGroup
      */
     public static function group(array $list)
     {
         $ss = [];
         foreach ($list as $item)
         {
-            if ( count($item) == 3)
+            if (!empty($item))
             {
-                $ss[] = Command::id($item[0])->bind($item[1], $item[2]);
+                $ss[] = Cmd::id($item['id'])->bind($item['event'], $item['closure']);
             }
         }
-        return new CommandGroup($ss);
+        return new CmdGroup($ss);
     }
 	
 	/**
 	 * 解析命令标识
 	 * 
-	 * @param  string $command
+	 * @param  string $Cmd
 	 * @return string
 	 */
-	public static function parseId($command)
+	public static function parseId($Cmd)
 	{
-		if ( empty($command) ) $command = '/';
+		if ( empty($Cmd) ) $Cmd = '/';
 
         foreach(self::$types as $key => $type)
         {
@@ -213,7 +213,7 @@ class Command
                 $type['pattern'] = str_replace('{'.$ck.'}', '('.$cval.')', $type['pattern']);
             }
 
-            if (preg_match('#^'.$type['pattern'].'/?$#i', $command, $match_result))
+            if (preg_match('#^'.$type['pattern'].'/?$#i', $Cmd, $match_result))
             {
                 # 处理默认项
                 if ( !empty($type['default']) )
@@ -234,35 +234,35 @@ class Command
                     }
                 }
 
-				$_GET[Command::QUERYKEY] = str_replace('/', '.', trim( $_GET[Command::QUERYKEY], "\/" ));
+				$_GET[Cmd::QUERYKEY] = str_replace('/', '.', trim( $_GET[Cmd::QUERYKEY], "\/" ));
                 break;
             }
         }
 
-        if ( empty($_GET[Command::QUERYKEY]) ) $_GET[Command::QUERYKEY] = Command::QUERYDEFAULT;
+        if ( empty($_GET[Cmd::QUERYKEY]) ) $_GET[Cmd::QUERYKEY] = Cmd::QUERYDEFAULT;
 
-        $_GET[Command::QUERYKEY] = strtolower($_GET[Command::QUERYKEY]);
+        $_GET[Cmd::QUERYKEY] = strtolower($_GET[Cmd::QUERYKEY]);
 
-        return $_GET[Command::QUERYKEY];
+        return $_GET[Cmd::QUERYKEY];
 	}
 
 	/**
 	 * 生成命令
 	 * 
-	 * @param  string $commandId
+	 * @param  string $CmdId
 	 * @param  array  $params
 	 * @param  const $typeid
 	 * 
 	 * @return string
 	 */
-    public static function build($commandId, $params=[], $typeid=Command::PAGE)
+    public static function build($CmdId, $params=[], $typeid=Cmd::PAGE)
     {
-        $commandId = strtolower(trim($commandId));
+        $CmdId = strtolower(trim($CmdId));
         
     	if ( !is_array($params) ) $params = [];
-        $params[Command::QUERYKEY] = $commandId;
+        $params[Cmd::QUERYKEY] = $CmdId;
 
-        $type = empty(self::$types[$typeid]) ? self::$types[Command::PAGE] : self::$types[$typeid];
+        $type = empty(self::$types[$typeid]) ? self::$types[Cmd::PAGE] : self::$types[$typeid];
         
         # 找出要参数化的变量(将参数数组同default合并起来)
         $kv = [];
@@ -276,13 +276,13 @@ class Command
         }
         
         # 填充必须的参数
-        if ( empty($kv[Command::QUERYKEY]) )
+        if ( empty($kv[Cmd::QUERYKEY]) )
         {
-            $kv[Command::QUERYKEY] = Command::QUERYDEFAULT;
+            $kv[Cmd::QUERYKEY] = Cmd::QUERYDEFAULT;
         }
-        if ( !empty($params[Command::QUERYKEY]) )
+        if ( !empty($params[Cmd::QUERYKEY]) )
         {
-        	$params[Command::QUERYKEY] = str_replace('.', '/', trim($params[Command::QUERYKEY], "\." ));
+        	$params[Cmd::QUERYKEY] = str_replace('.', '/', trim($params[Cmd::QUERYKEY], "\." ));
         }
 
         foreach($kv as $ck => $cval)
@@ -310,7 +310,7 @@ class Command
 /**
  * 命令组
  */
-class CommandGroup
+class CmdGroup
 {
 
     /**
@@ -323,7 +323,7 @@ class CommandGroup
         $this->list = [];
         foreach ( $list as $cmd )
         {
-            if ($cmd instanceof Command)
+            if ($cmd instanceof Cmd)
             {
                 $this->list[] = $cmd;
             }
@@ -335,7 +335,7 @@ class CommandGroup
      * 
      * @param  App    $app
      * 
-     * @return \Ws\Mvc\CommandGroup
+     * @return \Ws\Mvc\CmdGroup
      */
     public function bindTo(App $app)
     {
@@ -353,7 +353,7 @@ class CommandGroup
      * @param  closure    $before
      * @param  closure    $after
      * 
-     * @return \Ws\Mvc\CommandGroup
+     * @return \Ws\Mvc\CmdGroup
      */
     public function filter($before, $after=null)
     {
