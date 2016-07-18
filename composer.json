@@ -20,7 +20,8 @@
         "ext-openssl": "*",
         "psr/log": "^1.0",
         "monolog/monolog": "~1.11",
-        "google/apiclient": "1.0.*@beta"
+        "google/apiclient": "1.0.*@beta",
+        "ws-http": "*"
     },
     "require-dev": {
         
