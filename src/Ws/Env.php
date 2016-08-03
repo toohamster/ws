@@ -15,7 +15,7 @@ abstract class Env
 		self::$options['time']	= time();
 		self::$options['microtime']	= microtime(true);
 		self::$options['cli']	= PHP_SAPI === 'cli';
-		self::$options['win']	= strtolower(substr(php_uname("s"), 0, 3));
+		self::$options['win']	= 'win' === strtolower(substr(php_uname("s"), 0, 3));
 		self::$options['cliwin'] = self::$options['cli'] && self::$options['win'];
 
 		if (self::$options['cli'])
