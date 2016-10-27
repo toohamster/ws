@@ -2,8 +2,8 @@
 # 应用配置文件
 #
 return [
-	'defaults.session_autostart' => true,
-	'defaults.timezone' => 'Asia/Chongqing',
+	'app.session_autostart' => true,
+	'app.timezone' => 'Asia/Chongqing',
 	
 	'cmd.accessor' => '_ws',
 

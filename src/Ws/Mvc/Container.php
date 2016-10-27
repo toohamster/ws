@@ -23,12 +23,12 @@ class Container
 			$config = new Config( require(__DIR__ . '/__defaults.php') );
 			$config->import($options);
 
-			$timezone = $config->get('timezone', 'Asia/Chongqing');
+			$timezone = $config->get('app.timezone', 'Asia/Chongqing');
         	date_default_timezone_set($timezone);
 
         	if ( !Env::is('cli') )
         	{
-        		$session = $config->get('session_autostart', true);
+        		$session = $config->get('app.session_autostart', true);
         		if ( $session )
         		{
         			session_start();
@@ -142,14 +142,19 @@ class Container
 		// 定位挂载点
 		foreach ( $mounts as $appId => $options )
 		{
+			$pa = $pathinfo;
 			$idstr = '/^' . str_replace('/', '\/', $options['mount']) . '/i';
-			
-			if (preg_match($idstr,$pathinfo))
+			// 匹配pathinfo /a => /a/ 的区别
+			if ($options['mount'] == "{$pa}/")
+			{
+				$pa = "{$pa}/";
+			}
+			if (preg_match($idstr,$pa))
 			{
 				$app = self::loadApp($appId, $options);
 				if ( !empty($app) )
 				{
-					$pathing = preg_replace($idstr,'',$pathinfo);
+					$pathing = preg_replace($idstr,'',$pa);
 					$app->setPathing($pathing);
 				}
 
