@@ -1,6 +1,5 @@
 /vendor
 /youtube
-/web
 composer.phar
 composer.lock
 .DS_Store

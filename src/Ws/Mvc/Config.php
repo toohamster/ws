@@ -9,6 +9,13 @@ class Config
 {
 
     /**
+     * 仅读
+     * 
+     * @var boolean
+     */
+    private $readonly = false;
+
+    /**
      * 配置数组
      *
      * @var array
@@ -26,12 +33,24 @@ class Config
     }
 
     /**
+     * 关闭写操作
+     */
+    public function setReadonly()
+    {
+        $this->readonly = true;
+    }
+
+    /**
      * 导入设置
      *
      * @param array $config
      */
     public function import($config)
     {
+        if ($this->readonly)
+        {
+            throw new Exception("Config: readonly!");
+        }
         $this->_config = array_merge($this->_config, $config);
     }
 
@@ -88,6 +107,11 @@ class Config
      */
     public function set($item, $value)
     {
+        if ($this->readonly)
+        {
+            throw new Exception("Config: readonly!");
+        }
+
         if (strpos($item, '/') === false)
         {
            $this->_config[$item] = $value;
@@ -112,4 +136,5 @@ class Config
         $last = array_pop($keys);
         return [$keys, $last];
     }
+
 }

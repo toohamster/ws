@@ -113,6 +113,8 @@ class Container
 		static $firstIs = true;
 		$pathinfo = $request->pathinfo();
 
+		\Ws\Debug\AsDebug::dd($pathinfo, __METHOD__);
+
 		$mounts = (array) self::$config->get('app.mounts');
 		if ( $firstIs )
 		{

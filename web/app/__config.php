@@ -1,25 +1,27 @@
 <?php
-# 应用配置文件
-#
+
 return [
-	'app.session_autostart' => true,
-	'app.timezone' => 'Asia/Chongqing',
+
+	'app.timezone' => 'PRC',
+	
+	'cmd.accessor' => '_ws',
 
 	'debug.asdebug'	=> [
 		'enable'	=> true,
 		'q'	=> 'asdebug',
 		'qtag'	=> 'asdebug-tag',
 		'secret'	=> 'toohamster',
-		'dir'	=> sys_get_temp_dir(),
+		'dir'	=> __DIR__ . '/__storage',
 	],
-	
-	'cmd.accessor' => '_ws',
 
 	'app.mounts'	=> [
 		'default'	=> [
 			'mount'	=> '/',
-			'dir'	=> __DIR__,
-		]
+			'dir'	=> __DIR__ . '/Default',
+		],
+		'im'	=> [
+			'mount'	=> '/im',
+			'dir'	=> __DIR__ . '/Im',
+		],
 	],
-	'app.list'	=> []
 ];

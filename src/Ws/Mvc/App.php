@@ -34,7 +34,6 @@ class App
         {
             require($fileInit);
         }
-
     }
 
     /**

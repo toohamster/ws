@@ -31,6 +31,8 @@ class Request
         {
             $pathinfo = '/';
         }
+        // 某些坑爹linux环境下获取不到前置的'/' 符号
+        $pathinfo = '/' . ltrim($pathinfo,'\/');
         return $pathinfo;
     }
 

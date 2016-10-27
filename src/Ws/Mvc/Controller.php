@@ -55,6 +55,7 @@ abstract class Controller
 	 */
 	protected function view($viewname)
 	{
+		$this->viewVars['_app'] = $this->app;
 		$this->viewVars['_vt'] = $this->getViewTools();
 		$viewObj = new View($this->viewDir, $viewname, $this->viewVars);
 		return $viewObj->execute();
