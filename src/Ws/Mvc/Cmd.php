@@ -158,7 +158,7 @@ class Cmd
     {
         $id = trim($id);
         if ( empty($id) ) return null;
-        return new self(strtolower($id));
+        return new Cmd(strtolower($id));
     }
 
     /**
