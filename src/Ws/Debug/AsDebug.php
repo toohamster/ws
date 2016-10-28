@@ -15,54 +15,51 @@ use Ws\Mvc\Cmd;
 class AsDebug
 {
 
-    private $enable = false;
+    private $qargs = [];
+    private $items = [];
 
     private function __construct()
     {
-    	$options = Container::$config->get('debug.asdebug');
+        $options = Container::$config->get('debug.asdebug');
 
     	$enable = empty($options['enable']) ? false : $options['enable'];
 
     	$this->enable = (bool) $enable;
     	if (!$this->enable) return;
 
-    	$qi = empty($options['q']) ? 'asdebug' : $options['q'];
+    	$qauth = empty($options['qauth']) ? 'asdebug' : $options['qauth'];
+        $authval = Request::get($qauth);
+        $this->enable = $options['secret'] == $authval;
+
+        if (!$this->enable) return;
+
     	$qtag = empty($options['qtag']) ? 'asdebug-tag' : $options['qtag'];
 
         $this->qargs = [
-            'q' => $qi,
-            'qtag' => $qtag,
+            'qauth'     => $qauth,
+            'authval'      => $authval,
+            'qtag'      => $qtag,
+            'tagval'       => Request::get($qtag, 'atag'),
         ];
-        $this->tag = Request::get($qtag, 'atag');
 
-    	$secret = empty($options['secret']) ? 'toohamster' : $options['secret'];
-    	
-    	$ai = Request::get($qi);
-    	if ( $secret != $ai )
+    	$dir = empty($options['dir']) ? 'asdebug' : $options['dir'];
+    	if (!is_dir($dir))
     	{
-    		$this->enable = false;
-    		return;
+    		$dir = sys_get_temp_dir();
     	}
 
-    	$qdir = empty($options['dir']) ? 'asdebug' : $options['dir'];
-    	if (!is_dir($qdir))
-    	{
-    		$qdir = sys_get_temp_dir();
-    	}
-
-    	$path = $qdir . '/asdebug';
-        if (!is_dir($path)) {
-            mkdir($path, 0700, true);
-        }
-        $this->filename = $path . '/as-' . md5($this->tag) . '.log';
-        
-        $this->items = [];
+        $this->qargs['dir'] = $dir . '/asdebug';
+        $this->qargs['logfile'] = $this->qargs['dir'] . '/as-' . md5($this->tag) . '.log';
     }
 
     function __destruct()
     {
         // 进行资源释放
         if (!$this->enable) return;
+
+        if (!is_dir($this->qargs['dir'])) {
+            mkdir($this->qargs['dir'], 0700, true);
+        }
 
         $headers = [];
 
@@ -89,12 +86,12 @@ class AsDebug
 
         $data = json_encode(array(
             'id' => $id,
-            'tag' => $this->tag,
-            'content' => $this->output($data),
+            'tag' => $this->qargs['tagval'],
+            'content' => Env::dump($data, '', true),
             'create_at' => date('m-d H:i:s'),
         ));
 
-        file_put_contents($this->filename, $data);
+        file_put_contents($this->qargs['logfile'], $data);
     }
 
     private static function emu_getallheaders()
@@ -124,24 +121,18 @@ class AsDebug
         return $self;
     }
 
-    public function getContent()
-    {output($this->filename);
-        if (is_readable($this->filename)) {
-            $json = file_get_contents($this->filename);
+    private function getContent()
+    {
+        if (is_readable($this->qargs['logfile'])) {
+            $json = file_get_contents($this->qargs['logfile']);
             if (!empty($json)) {
                 $data = json_decode($json, true);
-                if ($data['tag'] == $this->tag) {
+                if ($data['tag'] == $this->qargs['tagval']) {
                     return $json;
                 }
             }
         }
-
         return '{}';
-    }
-
-    public function disable()
-    {
-        $this->enable = false;
     }
 
     private function write($vars, $label = '', $type = 'dump')
@@ -154,20 +145,9 @@ class AsDebug
         ];
     }
 
-    private function output($vars, $label = '')
-    {
-        return Env::dump($vars, $label, true);
-    }
-
     public static function dd($vars, $label = '')
     {
         self::instance()->write($vars, $label, 'dump');
-    }
-
-    public static function ddexit($vars, $label = '')
-    {
-        self::instance()->write($vars, $label, 'dump');
-        exit;
     }
 
     public function jqAjaxBind()
@@ -179,24 +159,25 @@ class AsDebug
         return $view->execute();
     }
 
-    public static function cmdView(App $app, $type)
+    public function cmdView(App $app, $type)
     {
-        self::instance()->disable();
+        if ($this->enable)
+        {
+            $this->enable = false;
 
-        if ('json' == $type){
-            return self::instance()->getContent();
+            if ('json' == $type){
+                return $this->getContent();
+            }
+            if ('ui' == $type){
+                $view = new View(__DIR__ . '/_asdebug', 'ui', [
+                        'url'   => $app->pagePathing('asdebug'),
+                        'qargs'  => $this->qargs,
+                    ]);
+                return $view->execute();
+            }
         }
 
-        if ('ui' == $type){
-            $view = new View(__DIR__ . '/_asdebug', 'ui', [
-                    'url'   => $app->pagePathing('asdebug'),
-                    'qargs'  => $this->qargs,
-                    'qtag'  => self::instance()->qargs['qtag'],
-                    'tag'   => self::instance()->tag,
-                    'sg'    => Request::get('sg', 500),
-                ]);
-            return $view->execute();
-        }
+        return 422;
     }
 
     public static function cmdBind(App $app)
@@ -208,10 +189,10 @@ class AsDebug
                 'closure'   => function($a){
                     $f = Request::get('f');
                     if ($f == 'json') {
-                        return AsDebug::cmdView($a, 'json');
+                        return AsDebug::instance()->cmdView($a, 'json');
                     }
 
-                    return AsDebug::cmdView($a, 'ui');
+                    return AsDebug::instance()->cmdView($a, 'ui');
                 }
             ]
         ])->bindTo($app);

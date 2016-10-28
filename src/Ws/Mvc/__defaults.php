@@ -7,10 +7,10 @@ return [
 
 	'debug.asdebug'	=> [
 		'enable'	=> true,
-		'q'	=> 'asdebug',
+		'qauth'	=> 'asdebug',
 		'qtag'	=> 'asdebug-tag',
-		'secret'	=> 'toohamster',
-		'dir'	=> sys_get_temp_dir(),
+		'secret'=> 'toohamster',
+		'dir'	=> null,
 	],
 	
 	'cmd.accessor' => '_ws',

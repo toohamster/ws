@@ -1,3 +1,8 @@
+<?php
+use Ws\Mvc\Request;
+
+$sg = Request::get('sg', 500);
+?>
 <script src="//cdn.bootcss.com/jquery/1.11.2/jquery.js"></script>
 <script>
     var ids = {};
@@ -26,7 +31,7 @@
         $.ajax('<?php echo $url?>', {
             type: 'GET',
             dataType: 'json',
-            data: {f: 'json', '<?php echo $qi?>': '<?php echo $ai?>', '<?php echo $qtag?>': '<?php echo $tag?>'},
+            data: {f: 'json', '<?php echo $qargs['qauth']?>': '<?php echo $qargs['authval']?>', '<?php echo $qargs['qtag']?>': '<?php echo $qargs['tagval']?>'},
             async: false,
             cache: false,
             error: function (xhr, status, et) {
