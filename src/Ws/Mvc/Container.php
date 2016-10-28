@@ -51,6 +51,8 @@ class Container
 	 */
 	public static function loadApp($appId, $options=false)
 	{
+		\Ws\Debug\Tracks::instance()->track('app:start', [$appId, $options]);
+		
 		$appId = strtoupper( trim($appId) );
 		$idstr = 'app.list/app::' . $appId;
 		$app = self::$config->get($idstr, null);
@@ -113,7 +115,7 @@ class Container
 		static $firstIs = true;
 		$pathinfo = $request->pathinfo();
 
-		\Ws\Debug\AsDebug::dd($pathinfo, __METHOD__);
+		\Ws\Debug\Tracks::instance()->track('sys:init', $pathinfo);
 
 		$mounts = (array) self::$config->get('app.mounts');
 		if ( $firstIs )

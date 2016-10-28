@@ -1,4 +1,4 @@
-<?php namespace Ws\DataMapper;
+<?php namespace Ws\Plugins\DataMapper;
 
 use Exception;
 
@@ -10,6 +10,7 @@ use Exception;
  */
 abstract class DomainObjectAbstract
 {
+
     protected $_id = null;
 
     /**

@@ -5,6 +5,11 @@ return [
 	'app.session_autostart' => true,
 	'app.timezone' => 'Asia/Chongqing',
 
+	'debug.tracks'	=> [
+		'enable'	=> true,
+		'qauth'	=> 'wstracks',
+		'secret'=> 'ws.tracks',
+	],
 	'debug.asdebug'	=> [
 		'enable'	=> true,
 		'qauth'	=> 'asdebug',

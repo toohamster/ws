@@ -1,6 +1,7 @@
 <?php namespace Ws\Debug;
 
 use Ws\Env;
+use Ws\SClassBase;
 use Ws\Mvc\Request;
 use Ws\Mvc\Container;
 use Ws\Mvc\App;
@@ -12,13 +13,13 @@ use Ws\Mvc\Cmd;
  * 
  * 使用简单的方式来跟踪运行中的资源调用状况
  */
-class AsDebug
+class AsDebug extends SClassBase
 {
 
     private $qargs = [];
     private $items = [];
 
-    private function __construct()
+    function __construct()
     {
         $options = Container::$config->get('debug.asdebug');
 
@@ -94,6 +95,11 @@ class AsDebug
         file_put_contents($this->qargs['logfile'], $data);
     }
 
+    public static function disable()
+    {
+        self::instance()->enable = false;
+    }
+
     private static function emu_getallheaders()
     {
         foreach ($_SERVER as $name => $value) {
@@ -107,18 +113,6 @@ class AsDebug
             }
         }
         return $headers;
-    }
-
-    /**
-     * 单例对象
-     * 
-     * @return \Ws\Debug\AsDebug
-     */
-    public static function instance()
-    {
-        static $self = null;
-        if (is_null($self)) $self = new self;
-        return $self;
     }
 
     private function getContent()

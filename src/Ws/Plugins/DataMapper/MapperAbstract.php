@@ -1,6 +1,4 @@
-<?php namespace Ws\DataMapper;
-
-use DomainObjectAbstract;
+<?php namespace Ws\Plugins\DataMapper;
 
 /**
  * MapperAbstract is the base class for mappers. 
@@ -34,7 +32,7 @@ abstract class MapperAbstract
      * Store the DomainObject in persistent storage. Either insert
      * or update the store as required.
      *
-     * @param \Ws\DataMapper\DomainObjectAbstract $obj
+     * @param \Ws\Plugins\DataMapper\DomainObjectAbstract $obj
      */
     public function save(DomainObjectAbstract $obj)
     {
@@ -50,7 +48,7 @@ abstract class MapperAbstract
      * 
      * Delete the DomainObject from persistent storage.
      *
-     * @param \Ws\DataMapper\DomainObjectAbstract $obj
+     * @param \Ws\Plugins\DataMapper\DomainObjectAbstract $obj
      */
     public function delete(DomainObjectAbstract $obj)
     {
@@ -63,37 +61,37 @@ abstract class MapperAbstract
      * 
      * To be implemented by the concrete mapper class
      *
-     * @param \Ws\DataMapper\DomainObjectAbstract $obj
+     * @param \Ws\Plugins\DataMapper\DomainObjectAbstract $obj
      * @param array $data
-     * @return \Ws\DataMapper\DomainObjectAbstract
+     * @return \Ws\Plugins\DataMapper\DomainObjectAbstract
      */
     abstract public function populate(DomainObjectAbstract $obj, array $data);
 
     /**
      * Create a new instance of a DomainObject
      * 
-     * @return \Ws\DataMapper\DomainObjectAbstract
+     * @return \Ws\Plugins\DataMapper\DomainObjectAbstract
      */
     abstract protected function _create();
 
     /**
      * Insert the DomainObject to persistent storage 
      *
-     * @param \Ws\DataMapper\DomainObjectAbstract $obj
+     * @param \Ws\Plugins\DataMapper\DomainObjectAbstract $obj
      */
     abstract protected function _insert(DomainObjectAbstract $obj);
 
     /**
      * Update the DomainObject in persistent storage 
      *
-     * @param \Ws\DataMapper\DomainObjectAbstract $obj
+     * @param \Ws\Plugins\DataMapper\DomainObjectAbstract $obj
      */
     abstract protected function _update(DomainObjectAbstract $obj);
 
     /**
      * Delete the DomainObject from peristent Storage
      *
-     * @param \Ws\DataMapper\DomainObjectAbstract $obj
+     * @param \Ws\Plugins\DataMapper\DomainObjectAbstract $obj
      */
     abstract protected function _delete(DomainObjectAbstract $obj);
     

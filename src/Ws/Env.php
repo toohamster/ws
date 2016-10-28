@@ -12,6 +12,9 @@ abstract class Env
 
 	public static function detect()
 	{
+		static $init = false;
+		if ($init) return;
+
 		self::$options['time']	= time();
 		self::$options['microtime']	= microtime(true);
 		self::$options['cli']	= PHP_SAPI === 'cli';
@@ -30,6 +33,8 @@ abstract class Env
 				$_REQUEST = array_merge($_REQUEST,$_GET);
 			} 
 		}
+
+		$init = true;
 	}
 
 	/**
@@ -164,6 +169,45 @@ abstract class Env
         }
 
         return ['type'=> $closureType, 'closure'=> $closure];
+	}
+
+	public static function getServerName()
+    {
+        $server_info = explode(' ', php_uname());
+        $server_name = $server_info[0] == 'Windows' ? $server_info[2] : $server_info[1];
+        if (empty($server_name)) {
+            $server_name = '--';
+        }
+
+        $server_name = str_replace(' ', '-', $server_name);
+        return strtolower(trim($server_name));
+    }
+
+	public static function fast_uuid($suffix_len = 3)
+	{
+	    //! 计算种子数的开始时间
+	    static $being_timestamp = 1421833799;
+
+	    $time = explode(' ', microtime());
+	    $id = ($time[1] - $being_timestamp) . sprintf('%06u', substr($time[0], 2, 6));
+	    if ($suffix_len > 0) {
+	        $id .= substr(sprintf('%010u', mt_rand()), 0, $suffix_len);
+	    }
+	    return $id;
+	}
+
+	public static function identify($x)
+	{
+	    static $mask = '0123456789abcdefghijklmnopqrstuvwxyz';
+	    $x = sprintf("%u", crc32($x));
+
+	    $m = '';
+	    while ($x > 0) {
+	        $s = $x % 36;
+	        $m .= $mask[$s];
+	        $x = floor($x / 36);
+	    }
+	    return $m;
 	}
 
 }
