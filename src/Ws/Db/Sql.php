@@ -1,6 +1,6 @@
 <?php namespace Ws\Db;
 
-use \PDO as PDO;
+use PDO;
 
 /**
  * SQL 数据库操作类
