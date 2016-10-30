@@ -126,21 +126,21 @@ class ViewLayer
      *
      * @var array
      */
-    public $blocks = array();
+    public $blocks = [];
 
     /**
      * 该层的区块
      *
      * @var array
      */
-    private $_block_stack = array();
+    private $_block_stack = [];
 
     /**
      * 预定义的区块
      *
      * @var array
      */
-    private $_predefined_blocks = array();
+    private $_predefined_blocks = [];
 
     /**
      * 构造函数
@@ -169,7 +169,7 @@ class ViewLayer
      *
      * @param array $predefined_blocks
      */
-    function parse(array $predefined_blocks = array())
+    function parse(array $predefined_blocks = [])
     {
         $this->_predefined_blocks = $predefined_blocks;
 

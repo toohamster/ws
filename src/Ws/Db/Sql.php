@@ -57,7 +57,7 @@ class Sql
 	 */
 	public static function ds(array $dsn)
 	{
-		static $list = array();
+		static $list = [];
 		$dsn = SqlDataSource::dsn($dsn);
 		$id = $dsn['id'];
 		if ( empty( $list[$id] ) )
@@ -111,7 +111,7 @@ class Sql
 				
 				if (is_array($result))
 				{
-					$result['rows'] = ($result['total'] == 0) ? array() : $ds->all($sql);
+					$result['rows'] = ($result['total'] == 0) ? [] : $ds->all($sql);
 				}
 				else
 				{
@@ -133,7 +133,7 @@ class Sql
 				if ($limit) $sql = $ds->sql_limit($sql, $limit);
 				if (is_array($result))
 				{
-					$result['rows'] = ($result['total'] == 0) ? array() : $ds->col($sql,$col);
+					$result['rows'] = ($result['total'] == 0) ? [] : $ds->col($sql,$col);
 				}
 				else
 				{
@@ -294,7 +294,7 @@ class SqlDataSource
 
         if ( empty( $dsn['attr'] ) || !is_array( $dsn['attr'] ) )
     	{
-    		$dsn['attr'] = array();
+    		$dsn['attr'] = [];
     	}
 
     	# force use ASSOC array
@@ -302,7 +302,7 @@ class SqlDataSource
 
     	if ( empty( $dsn['initcmd'] ) || !is_array( $dsn['initcmd'] ) )
     	{
-    		$dsn['initcmd'] = array();
+    		$dsn['initcmd'] = [];
     	}
     	
     	# sql monitor
@@ -334,7 +334,7 @@ class SqlDataSource
 	        if ($result === false)
 	        {
 	        	$error = $this->db->errorInfo();
-	        	throw new SqlError("db query failed: " . print_r(array($this->dsn['id'], $cmd, $error),true));
+	        	throw new SqlError("db query failed: " . print_r([$this->dsn['id'], $cmd, $error),true]);
 	        }
         }
         $this->connected = true;
@@ -392,7 +392,7 @@ class SqlDataSource
     private function monitor($sql)
     {
     	if ( $this->dsn['monitor'] ){
-        	call_user_func_array($this->dsn['monitor'], array($sql, $this->dsn['id']));
+        	call_user_func_array($this->dsn['monitor'], [$sql, $this->dsn['id']]);
         }
     }
 	
@@ -413,7 +413,7 @@ class SqlDataSource
         if ($result === false)
         {
         	$error = $this->db->errorInfo();
-        	throw new SqlError("db query failed: " . print_r(array($this->dsn['id'], $sql, $error),true));
+        	throw new SqlError("db query failed: " . print_r([$this->dsn['id'], $sql, $error],true));
         }
         $this->affected_rows = $result;    	
     }
@@ -432,7 +432,7 @@ class SqlDataSource
         if ($statement !== false) return $statement;
         
     	$error = $this->db->errorInfo();
-    	throw new SqlError("db query failed: " . print_r(array($this->dsn['id'], $sql, $error),true));
+    	throw new SqlError("db query failed: " . print_r([$this->dsn['id'], $sql, $error],true));
     }
     
 	public function all($sql)
@@ -577,7 +577,7 @@ class SqlHelper
  				do {
  					if (in_array($op, $equal_in)){
  						if ($op == '=') $op = 'IN';
- 						$value = '(' . implode(',',array_map(array($ds, 'qstr'),$value)) . ')';
+ 						$value = '(' . implode(',',array_map([$ds, 'qstr'],$value)) . ')';
  						break;
  					} 					
  					
@@ -639,7 +639,7 @@ class SqlHelper
             $fields = explode(',', $fields);
             $fields = array_map('trim', $fields);
         }
-        $result = array();
+        $result = [];
         foreach ($fields as $field) {
             $result[] = self::qfield($field, $table);
         }
@@ -649,8 +649,8 @@ class SqlHelper
 	
     public static function placeholder(&$inputarr, $fields = null)
     {
-        $holders = array();
-        $values = array();
+        $holders = [];
+        $values = [];
         if (is_array($fields)) {
             $fields = array_change_key_case(array_flip($fields), CASE_LOWER);
             foreach (array_keys($inputarr) as $key) {
@@ -669,8 +669,8 @@ class SqlHelper
     
     public static function placeholder_pair(&$inputarr, $fields = null)
     {
-        $pairs = array();
-        $values = array();
+        $pairs = [];
+        $values = [];
         if (is_array($fields)) {
             $fields = array_change_key_case(array_flip($fields), CASE_LOWER);
             foreach (array_keys($inputarr) as $key) {
@@ -766,9 +766,9 @@ class SqlAssistant
 		
 		$qfields = SqlHelper::qfields($fields,$table);
 		
-		$result = Sql::read($ds, Sql::MODE_READ_GETROW, array(
+		$result = Sql::read($ds, Sql::MODE_READ_GETROW, [
 				"SELECT {$qfields} FROM {$table} {$cond} {$sort}"
-			));
+			]);
 		return $result;
 	}
     
@@ -794,11 +794,11 @@ class SqlAssistant
 		$qfields = SqlHelper::qfields($fields,$table);
 		$table = SqlHelper::qtable($table);
 		
-		$result = Sql::read($ds, Sql::MODE_READ_GETALL, array(
+		$result = Sql::read($ds, Sql::MODE_READ_GETALL, [
 				"SELECT {$qfields} FROM {$table} {$cond} {$sort}",
 				empty($limit) ? false : $limit,
 				$calc
-			));
+			]);
 		return $result;
 	}
 
@@ -829,9 +829,9 @@ class SqlAssistant
         
         $table = SqlHelper::qtable($table);
         
-        $result = (int) Sql::read($ds, Sql::MODE_READ_GETONE, array(
+        $result = (int) Sql::read($ds, Sql::MODE_READ_GETONE, [
 				"SELECT COUNT({$distinct}{$fields}) FROM {$table} {$cond}"
-			));
+			]);
 		return $result;
     }
 
@@ -853,10 +853,10 @@ class SqlAssistant
         $fields = SqlHelper::qfields(array_keys($values));        
         $table = SqlHelper::qtable($table);
 		
-        $result = Sql::write($ds, Sql::MODE_WRITE_INSERT, array(
+        $result = Sql::write($ds, Sql::MODE_WRITE_INSERT, [
 				SqlHelper::bind($ds, "INSERT INTO {$table} ({$fields}) VALUES ({$holders})", $row),
 				$pkval
-			));
+			]);
 		return $result;
 	}
 
@@ -884,9 +884,9 @@ class SqlAssistant
         $cond = SqlHelper::parse_cond($ds, $cond);
         if ($cond) $sql .= " WHERE {$cond}";
         
-        $result = Sql::write($ds, Sql::MODE_WRITE_UPDATE, array(
+        $result = Sql::write($ds, Sql::MODE_WRITE_UPDATE, [
 			 $sql
-		));
+		]);
 		return $result;
 	}
 
@@ -906,9 +906,9 @@ class SqlAssistant
 		
 		$sql = "DELETE FROM {$table} " . (empty($cond) ? '' : "WHERE {$cond}");
 		
-		$result = Sql::write($ds, Sql::MODE_WRITE_DELETE, array(
+		$result = Sql::write($ds, Sql::MODE_WRITE_DELETE, [
 				$sql
-			));
+			]);
 		return $result;
 	}
 
@@ -932,9 +932,9 @@ class SqlAssistant
         $cond = SqlHelper::parse_cond($ds,$cond);
         $sql = "UPDATE {$table} SET {$field} = {$field} + {$incr} " . (empty($cond) ? '' : "WHERE {$cond}");
 
-        $result = Sql::write($ds, Sql::MODE_WRITE_UPDATE, array(
+        $result = Sql::write($ds, Sql::MODE_WRITE_UPDATE, [
 				$sql
-			));
+			]);
 		return $result;
     }
 
