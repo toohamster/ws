@@ -1,5 +1,6 @@
 <?php namespace Ws\Debug;
 
+use Ws\Runtime;
 use Ws\Env;
 use Ws\SClassBase;
 use Ws\Mvc\Request;
@@ -75,22 +76,23 @@ class AsDebug extends SClassBase
 
         $headers['response'] = headers_list();
 
-        $data = array(
+        $data = [
             'url' => Request::get_request_uri(),
+            'runtimeId' => Runtime::instance()->id(),
             'headers' => $headers,
             'cookies' => isset($_COOKIE) ? $_COOKIE : [],
             'sessions' => isset($_SESSION) ? $_SESSION : [],
             'items' => $this->items,
-        );
+        ];
         $create_at = time();
         $id = md5($data['url'] . $create_at);
 
-        $data = json_encode(array(
+        $data = json_encode([
             'id' => $id,
             'tag' => $this->qargs['tagval'],
             'content' => Env::dump($data, '', true),
-            'create_at' => date('m-d H:i:s'),
-        ));
+            'create_at' => date('m-d H:i:s', $create_at),
+        ]);
 
         file_put_contents($this->qargs['logfile'], $data);
     }

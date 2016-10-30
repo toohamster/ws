@@ -4,6 +4,7 @@
 return [
 	'app.session_autostart' => true,
 	'app.timezone' => 'Asia/Chongqing',
+	'app.runtime_id' => null,
 
 	'debug.tracks'	=> [
 		'enable'	=> true,

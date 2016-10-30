@@ -1,6 +1,7 @@
 <?php namespace Ws\Debug;
 
 use Ws\Env;
+use Ws\Runtime;
 use Ws\SClassBase;
 use Ws\Mvc\Request;
 use Ws\Mvc\Container;
@@ -71,6 +72,7 @@ final class Tracks extends SClassBase
                 if ( !isset($m[1]) ) $m[1] = 0;
                 $msg = [
                     'tag' => $tag,
+                    'runtimeId' => Runtime::instance()->id(),
                     'ms' => $ms,
                     'date' => date("Ymd H:i:s.{$m[1]}", $m[0]),
                     'cookies' => isset($_COOKIE) ? $_COOKIE : [],

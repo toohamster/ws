@@ -2,6 +2,7 @@
 
 use Exception;
 use Ws\Env;
+use Ws\Runtime;
 use Ws\Helper\Arrays;
 
 class Container
@@ -25,6 +26,8 @@ class Container
 
 			$timezone = $config->get('app.timezone', 'Asia/Chongqing');
         	date_default_timezone_set($timezone);
+
+        	$config->set('app.runtime_id', Runtime::instance()->id());
 
         	if ( !Env::is('cli') )
         	{
