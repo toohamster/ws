@@ -334,7 +334,7 @@ class SqlDataSource
 	        if ($result === false)
 	        {
 	        	$error = $this->db->errorInfo();
-	        	throw new SqlError("db query failed: " . print_r([$this->dsn['id'], $cmd, $error),true]);
+	        	throw new SqlError("db query failed: " . print_r([ $this->dsn['id'], $cmd, $error ], true) );
 	        }
         }
         $this->connected = true;
